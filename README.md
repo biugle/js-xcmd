@@ -1,20 +1,20 @@
 # js-xcmd
 
-## Import
+## Install
 
-```javascript
+```bash
 npm i js-xcmd -g
 ```
 
 ## Use
 
-```javascript
+```bash
 xcmd -h
 ```
 
 ## Test Package.json.bin.xxx
 
-```javascript
+```bash
 npm link
 ```
 
