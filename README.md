@@ -12,6 +12,12 @@ npm i js-xcmd -g
 xcmd -h
 ```
 
+## Test Package.json.bin.xxx
+
+```javascript
+npm link
+```
+
 ## Others
 
 * [Issue](https://github.com/pandaoh/js-xcmd/issues)
