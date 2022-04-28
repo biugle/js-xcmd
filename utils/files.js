@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 17:49:14
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-04-25 18:12:34
+ * @LastEditTime: 2022-04-28 13:53:16
  * @Description: 文件处理工具
  * @FilePath: \js-xcmd\utils\files.js
  */
@@ -96,7 +96,7 @@ const getFileContent = (filePath) => {
  * @param {*} content
  */
 const setFileContent = (filePath, content) => {
-  fs.writeFileSync(filePath, content);
+  fs.writeFileSync(filePath, content, 'utf-8');
 };
 
 module.exports = {

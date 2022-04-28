@@ -1,7 +1,8 @@
 {
   "name": "js-xcmd",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "xcmd",
+  "main": "main.js",
   "bin": {
     "xcmd": "bin/xcmd.js"
   },
@@ -30,5 +31,5 @@
     "download-git-repo": "^3.0.2",
     "node-cmd": "^5.0.0"
   },
-  "time": "2036551026042022"
+  "time": "5643391428042022"
 }

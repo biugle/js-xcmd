@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-04-25 18:35:23
+ * @LastEditTime: 2022-04-28 14:37:57
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -14,6 +14,7 @@ const download = require('download-git-repo');
 const pkg = require('../package.json');
 const { copyDir, copyFile, getFileContent, setFileContent } = require('../utils/files');
 const nodeCmd = require('node-cmd');
+const { cmd } = require('../utils/cmd');
 
 // http://patorjk.com/software/taag/
 const logo = () => {
@@ -62,6 +63,7 @@ program
     });
   });
 
+// xcmd copy-file ./package.json ./target/package.json
 program
   .option('copy-file <fileSrc> <fileTarget>', 'copy file')
   .command('copy-file <fileSrc> <fileTarget>')
@@ -79,6 +81,19 @@ program
     console.log('----------Copying----------');
     console.log({ dirSrc, dirTarget });
     copyDir(null, dirSrc, dirTarget);
+    console.log('----------Successful----------');
+  });
+
+// xcmd replace-file-content  .\README.md "npm i js-xcmd -g" "test"
+program
+  .option('replace-file-content <fileSrc> <content> <contentTarget>', 'replace file content')
+  .command('replace-file-content <fileSrc> <content> <contentTarget>')
+  .action((fileSrc, content, contentTarget) => {
+    console.log('----------Replacing----------');
+    console.table({ fileSrc, content, contentTarget });
+    let srcFileContent = getFileContent(fileSrc);
+    setFileContent(fileSrc, srcFileContent.replace(content, contentTarget));
+    // setFileContent(fileSrc, srcFileContent.replace(new RegExp(content), contentTarget));
     console.log('----------Successful----------');
   });
 
@@ -106,6 +121,23 @@ program
       if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
     });
     console.log('----------Successful----------');
+  });
+
+// xcmd run "git status"
+program
+  .option('run <cmdStr>', 'run cmd')
+  .command('run <cmdStr>')
+  .action((cmdStr) => {
+    console.log('----------Executing ----------');
+    cmd(cmdStr)
+      .then((data) => {
+        console.log(data);
+        console.log('----------Successful----------');
+      })
+      .catch((err) => {
+        console.log('----------Error----------');
+        console.log(err);
+      });
   });
 
 program.parse(process.argv);
