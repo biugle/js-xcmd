@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-04-28 14:37:57
+ * @LastEditTime: 2022-04-28 15:00:08
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -119,8 +119,9 @@ program
     console.log(rimrafCmd);
     nodeCmd.run(rimrafCmd, (err, data, stderr) => {
       if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+
+      console.log('----------Successful----------');
     });
-    console.log('----------Successful----------');
   });
 
 // xcmd run "git status"
