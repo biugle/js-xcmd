@@ -11,13 +11,33 @@ npm i js-xcmd -g
 ```bash
 xcmd -h
 
-const { isDirExist, copyDir, copyFile, getFileContent, setFileContent, cmd } = require('js-xcmd');
+const {
+  isDirExistResult,
+  isDirExist,
+  copyDir,
+  copyFile,
+  deleteDir,
+  deleteFile,
+  addDir,
+  addFile,
+  renameDir,
+  renameFile,
+  getFileName,
+  getFileSize,
+  getFileExt,
+  getFileContent,
+  setFileContent,
+  cmd
+} = require('js-xcmd');
 ```
 
 ## Test Package.json.bin.xxx
 
 ```bash
 npm link
+npm run bind
+npm unlink
+npm run unbind
 ```
 
 ## Others

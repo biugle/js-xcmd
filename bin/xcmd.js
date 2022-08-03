@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-04-28 15:00:08
+ * @LastEditTime: 2022-08-03 18:41:19
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -12,7 +12,18 @@
 const program = require('commander');
 const download = require('download-git-repo');
 const pkg = require('../package.json');
-const { copyDir, copyFile, getFileContent, setFileContent } = require('../utils/files');
+const {
+  copyDir,
+  copyFile,
+  getFileContent,
+  setFileContent,
+  deleteDir,
+  deleteFile,
+  addDir,
+  addFile,
+  renameDir,
+  renameFile
+} = require('../utils/files');
 const nodeCmd = require('node-cmd');
 const { cmd } = require('../utils/cmd');
 
@@ -63,6 +74,28 @@ program
     });
   });
 
+program
+  .option('create-vue-admin [dir]', 'create vue-admin cli')
+  .command('create-vue-admin [dir]')
+  .action((dir) => {
+    console.log('----------Clone Template----------');
+    console.log(logLogo(logo));
+    download('github:pandaoh/vue-admin', !dir ? 'vue-admin' : dir, function (err) {
+      console.log(err ? err : '----------Successful----------');
+    });
+  });
+
+program
+  .option('create-micro-web [dir]', 'create micro-web cli')
+  .command('create-micro-web [dir]')
+  .action((dir) => {
+    console.log('----------Clone Template----------');
+    console.log(logLogo(logo));
+    download('github:pandaoh/react_micro_web', !dir ? 'react_micro_web' : dir, function (err) {
+      console.log(err ? err : '----------Successful----------');
+    });
+  });
+
 // xcmd copy-file ./package.json ./target/package.json
 program
   .option('copy-file <fileSrc> <fileTarget>', 'copy file')
@@ -81,6 +114,66 @@ program
     console.log('----------Copying----------');
     console.log({ dirSrc, dirTarget });
     copyDir(null, dirSrc, dirTarget);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('delete-dir <dir>', 'delete dir')
+  .command('delete-dir <dir>')
+  .action((dir) => {
+    console.log('----------Deleting----------');
+    console.log({ dir });
+    deleteDir(dir);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('delete-file <file>', 'delete file')
+  .command('delete-file <file>')
+  .action((file) => {
+    console.log('----------Deleting----------');
+    console.log({ file });
+    deleteFile(file);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('add-dir <dir>', 'add dir')
+  .command('add-dir <dir>')
+  .action((dir) => {
+    console.log('----------Adding----------');
+    console.log({ dir });
+    addDir(dir);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('add-file <file> [content]', 'add file')
+  .command('add-file <file> [content]')
+  .action((file, content = '') => {
+    console.log('----------Adding----------');
+    console.log({ file, content });
+    addFile(file, content);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('rename-dir <dirSrc> <dirTarget>', 'rename dir')
+  .command('rename-dir <dirSrc> <dirTarget>')
+  .action((dirSrc, dirTarget) => {
+    console.log('----------Renaming----------');
+    console.log({ dirSrc, dirTarget });
+    renameDir(dirSrc, dirTarget);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('rename-file <fileSrc> <fileTarget>', 'rename file')
+  .command('rename-file <fileSrc> <fileTarget>')
+  .action((fileSrc, fileTarget) => {
+    console.log('----------Renaming----------');
+    console.log({ fileSrc, fileTarget });
+    renameFile(fileSrc, fileTarget);
     console.log('----------Successful----------');
   });
 
