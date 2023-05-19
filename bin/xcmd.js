@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2023-05-19 14:32:38
+ * @LastEditTime: 2023-05-19 14:46:10
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -205,7 +205,7 @@ program
     console.log('----------Replacing----------');
     console.table({ fileSrc, content, contentTarget });
     let srcFileContent = getFileContent(fileSrc);
-    setFileContent(fileSrc, srcFileContent.replace(content, contentTarget));
+    setFileContent(fileSrc, srcFileContent.replaceAll(content, contentTarget));
     // setFileContent(fileSrc, srcFileContent.replace(new RegExp(content), contentTarget));
     console.log('----------Successful----------');
   });
