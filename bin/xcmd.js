@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-08-03 18:41:19
+ * @LastEditTime: 2023-05-19 14:32:38
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -96,6 +96,17 @@ program
     });
   });
 
+program
+  .option('create-web-base [dir]', 'create web-base cli')
+  .command('create-web-base [dir]')
+  .action((dir) => {
+    console.log('----------Clone Template----------');
+    console.log(logLogo(logo));
+    download('github:biugle/web_base', !dir ? 'web_base' : dir, function (err) {
+      console.log(err ? err : '----------Successful----------');
+    });
+  });
+
 // xcmd copy-file ./package.json ./target/package.json
 program
   .option('copy-file <fileSrc> <fileTarget>', 'copy file')
@@ -182,6 +193,15 @@ program
   .option('replace-file-content <fileSrc> <content> <contentTarget>', 'replace file content')
   .command('replace-file-content <fileSrc> <content> <contentTarget>')
   .action((fileSrc, content, contentTarget) => {
+    contentTarget = contentTarget.replace('[space]', ' ');
+    contentTarget = contentTarget.replace('[none]', '');
+    contentTarget = contentTarget.replace('[backslash]', '\\');
+    contentTarget = contentTarget.replace('[forward]', '/');
+    contentTarget = contentTarget.replace('[vLine]', '|');
+    contentTarget = contentTarget.replace('[and]', '&');
+    contentTarget = contentTarget.replace('[percent]', '%');
+    contentTarget = contentTarget.replace('[leftABracket]', '<');
+    contentTarget = contentTarget.replace('[rightABracket]', '>');
     console.log('----------Replacing----------');
     console.table({ fileSrc, content, contentTarget });
     let srcFileContent = getFileContent(fileSrc);
