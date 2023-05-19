@@ -205,8 +205,8 @@ program
     console.log('----------Replacing----------');
     console.table({ fileSrc, content, contentTarget });
     let srcFileContent = getFileContent(fileSrc);
-    setFileContent(fileSrc, srcFileContent.replaceAll(content, contentTarget));
-    // setFileContent(fileSrc, srcFileContent.replace(new RegExp(content), contentTarget));
+    // setFileContent(fileSrc, srcFileContent.replace(content, contentTarget));
+    setFileContent(fileSrc, srcFileContent.replace(new RegExp(content, 'g'), contentTarget));
     console.log('----------Successful----------');
   });
 
