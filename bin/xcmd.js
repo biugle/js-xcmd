@@ -110,7 +110,7 @@ program
       cross: 'simple-cross-platform'
     };
     download(
-      'github:biugle/web_base' + branch ? `#${branchs[branch] ?? branch ?? 'main'}` : '',
+      'github:biugle/web_base' + (branch ? `#${branchs[branch] ?? branch ?? 'main'}` : ''),
       !dir ? 'web_base' : dir,
       function (err) {
         console.log(err ? err : '----------Successful----------');
