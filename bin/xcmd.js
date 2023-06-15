@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2023-05-19 14:46:10
+ * @LastEditTime: 2023-06-15 14:34:01
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -97,14 +97,25 @@ program
   });
 
 program
-  .option('create-web-base [dir]', 'create web-base cli')
-  .command('create-web-base [dir]')
-  .action((dir) => {
+  .option('create-web-base [dir] [branch]', 'create web-base cli')
+  .command('create-web-base [dir] [branch]')
+  .action((dir, branch) => {
     console.log('----------Clone Template----------');
     console.log(logLogo(logo));
-    download('github:biugle/web_base', !dir ? 'web_base' : dir, function (err) {
-      console.log(err ? err : '----------Successful----------');
-    });
+    const branchs = {
+      main: 'main',
+      modules: 'modules',
+      'c-modules': 'client-modules',
+      'c-main': 'client-main',
+      cross: 'simple-cross-platform'
+    };
+    download(
+      'github:biugle/web_base' + branch ? `#${branchs[branch] ?? branch ?? 'main'}` : '',
+      !dir ? 'web_base' : dir,
+      function (err) {
+        console.log(err ? err : '----------Successful----------');
+      }
+    );
   });
 
 // xcmd copy-file ./package.json ./target/package.json
