@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2023-06-15 14:34:01
+ * @LastEditTime: 2023-12-29 14:42:16
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -22,7 +22,9 @@ const {
   addDir,
   addFile,
   renameDir,
-  renameFile
+  renameFile,
+  rmRf,
+  emptyDir
 } = require('../utils/files');
 const nodeCmd = require('node-cmd');
 const { cmd } = require('../utils/cmd');
@@ -150,6 +152,26 @@ program
   });
 
 program
+  .option('empty-dir <dir>', 'empty dir')
+  .command('empty-dir <dir>')
+  .action((dir) => {
+    console.log('----------Emptying----------');
+    console.log({ dir });
+    emptyDir(dir);
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('rm-rf <path>', 'rm rf')
+  .command('rm-rf <path>')
+  .action((path) => {
+    console.log('----------RimRaf----------');
+    console.log({ path });
+    rmRf(path);
+    console.log('----------Successful----------');
+  });
+
+program
   .option('delete-file <file>', 'delete file')
   .command('delete-file <file>')
   .action((file) => {
@@ -243,8 +265,98 @@ program
     console.log(rimrafCmd);
     nodeCmd.run(rimrafCmd, (err, data, stderr) => {
       if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
-
+      console.log(data);
       console.log('----------Successful----------');
+    });
+  });
+
+program
+  .option('npm-clean', 'npm-clean')
+  .command('npm-clean')
+  .action(() => {
+    console.log('----------Npm-CacheClean-Start----------');
+    const cmdStr = 'npm cache clean --force';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Npm-CacheClean-End----------');
+    });
+  });
+
+program
+  .option('yarn-clean', 'yarn-clean')
+  .command('yarn-clean')
+  .action(() => {
+    console.log('----------Yarn-CacheClean-Start----------');
+    const cmdStr = 'yarn cache clean --force';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Yarn-CacheClean-End----------');
+    });
+  });
+
+program
+  .option('i', 'npm i --ignore-scripts')
+  .command('i')
+  .action(() => {
+    console.log('----------Npm-Install-IgnoreScripts-Start----------');
+    const cmdStr = 'npm i --ignore-scripts';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Npm-Install-IgnoreScripts-End----------');
+    });
+  });
+
+program
+  .option('eslint', 'eslint ./ --fix --ext .ts,.tsx,.js,.jsx,.vue')
+  .command('eslint')
+  .action(() => {
+    console.log('----------Eslint-Start----------');
+    const cmdStr = 'eslint ./ --fix --ext .ts,.tsx,.js,.jsx,.vue';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Eslint-End----------');
+    });
+  });
+
+program
+  .option('prettier', 'prettier --write ./**/*.{ts,tsx,js,jsx,vue,html,css,scss,less}')
+  .command('prettier')
+  .action(() => {
+    console.log('----------Prettier-Start----------');
+    const cmdStr = 'prettier --write ./**/*.{ts,tsx,js,jsx,vue,html,css,scss,less}';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Prettier-End----------');
+    });
+  });
+
+program
+  .option('list [global]', 'list [global]')
+  .command('list [global]')
+  .action((global) => {
+    let cmdStr = '';
+    if (global) {
+      console.log('----------Npm-List-Global-Start----------');
+      cmdStr = 'npm list -g --depth 0';
+    } else {
+      console.log('----------Npm-List-Start----------');
+      cmdStr = 'npm list --depth 0';
+    }
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Npm-List-End----------');
     });
   });
 

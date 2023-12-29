@@ -2,12 +2,14 @@
  * @Author: HxB
  * @Date: 2022-04-25 17:49:14
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-08-03 18:47:26
+ * @LastEditTime: 2023-12-29 14:03:06
  * @Description: 文件处理工具
  * @FilePath: \js-xcmd\utils\files.js
  */
 const path = require('path');
 const fs = require('fs');
+const { rimraf } = require('rimraf');
+const fsExtra = require('fs-extra');
 
 /**
  * 判断目录是否存在，返回结果。(boolean)
@@ -129,6 +131,29 @@ const deleteFile = (filePath) => {
 };
 
 /**
+ * 清空目录
+ * @param {*} dirPath
+ */
+const emptyDir = (dirPath) => {
+  try {
+    // fsExtra.removeSync(dirPath);
+    fsExtra.emptyDirSync(dirPath);
+    console.log('文件夹已成功清空');
+  } catch (err) {
+    console.error('清空文件夹时出错:', err);
+  }
+};
+
+/**
+ * rm-rf 目录或者文件
+ * @param {*} path 路径或者路径数组
+ * @param {*} opts https://www.npmjs.com/package/rimraf
+ */
+const rmRf = (path, opts) => {
+  rimraf(path, opts);
+};
+
+/**
  * 新建目录
  * @param {*} dir
  */
@@ -217,8 +242,10 @@ const setFileContent = (filePath, content) => {
 };
 
 module.exports = {
+  rmRf,
   isDirExistResult,
   isDirExist,
+  emptyDir,
   copyDir,
   copyFile,
   deleteDir,
