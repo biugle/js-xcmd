@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 17:49:14
  * @LastEditors: DoubleAm
- * @LastEditTime: 2023-12-29 14:03:06
+ * @LastEditTime: 2024-01-15 17:51:49
  * @Description: 文件处理工具
  * @FilePath: \js-xcmd\utils\files.js
  */
@@ -13,25 +13,25 @@ const fsExtra = require('fs-extra');
 
 /**
  * 判断目录是否存在，返回结果。(boolean)
- * @param {*} path
+ * @param {*} dirPath
  * @returns
  */
-const isDirExistResult = (path) => {
-  return fs.existsSync(path);
+const isDirExistResult = (dirPath) => {
+  return fs.existsSync(dirPath);
 };
 
 /**
  * 判断目录是否存在，不存在则创建目录。
  */
-const isDirExist = (path) => {
-  // fs.access(path, function (err) {
+const isDirExist = (dirPath) => {
+  // fs.access(dirPath, function (err) {
   //   if (err) {
   //     // 目录不存在时创建目录
-  //     fs.mkdirSync(path);
+  //     fs.mkdirSync(dirPath);
   //   }
   // });
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
 };
 
@@ -40,37 +40,22 @@ const isDirExist = (path) => {
  * @param src {String} 要复制的目录
  * @param target {String} 复制到目标目录
  */
-const copyDir = (err, src, target) => {
-  if (err) {
-    console.log({ 'copyDir error': err });
-    return;
+const copyDir = (src, target) => {
+  if (!fs.existsSync(target)) {
+    fs.mkdirSync(target, { recursive: true });
   }
 
-  fs.readdir(src, function (err, paths) {
-    if (err) {
-      console.log({ 'copyDir error': err });
-      return;
+  const paths = fs.readdirSync(src);
+  paths.forEach((filename) => {
+    const srcPath = path.join(src, filename);
+    const targetPath = path.join(target, filename);
+    const stat = fs.statSync(srcPath);
+
+    if (stat.isFile()) {
+      fs.copyFileSync(srcPath, targetPath);
+    } else if (stat.isDirectory()) {
+      copyDir(srcPath, targetPath);
     }
-
-    paths.forEach(function (path) {
-      let _src = src + '/' + path;
-      let _target = target + '/' + path;
-      fs.stat(_src, function (err, stat) {
-        if (err) {
-          console.log({ 'copyDir error': err });
-          return;
-        }
-
-        // 判断是文件还是目录
-        if (stat.isFile()) {
-          fs.writeFileSync(_target, fs.readFileSync(_src));
-        } else if (stat.isDirectory()) {
-          // 当是目录是，递归复制。
-          isDirExist(_target);
-          copyDir(null, _src, _target);
-        }
-      });
-    });
   });
 };
 
@@ -98,12 +83,12 @@ const copyFile = (src, target) => {
 
 /**
  * 删除文件夹
- * @param {*} path
+ * @param {*} dirPath
  */
-const deleteDir = (path) => {
-  if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function (file) {
-      var curPath = path + '/' + file;
+const deleteDir = (dirPath) => {
+  if (fs.existsSync(dirPath)) {
+    fs.readdirSync(dirPath).forEach(function (file) {
+      let curPath = dirPath + '/' + file;
       if (fs.statSync(curPath).isDirectory()) {
         // recurse
         deleteDir(curPath);
@@ -112,7 +97,7 @@ const deleteDir = (path) => {
         fs.unlinkSync(curPath);
       }
     });
-    fs.rmdirSync(path);
+    fs.rmdirSync(dirPath);
   } else {
     console.log('目录不存在');
   }
@@ -146,11 +131,11 @@ const emptyDir = (dirPath) => {
 
 /**
  * rm-rf 目录或者文件
- * @param {*} path 路径或者路径数组
+ * @param {*} dirPath 路径或者路径数组
  * @param {*} opts https://www.npmjs.com/package/rimraf
  */
-const rmRf = (path, opts) => {
-  rimraf(path, opts);
+const rmRf = (dirPath, opts) => {
+  rimraf(dirPath, opts);
 };
 
 /**
@@ -159,7 +144,12 @@ const rmRf = (path, opts) => {
  */
 const addDir = (dir) => {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log('目录创建成功');
+    } catch (err) {
+      console.log({ 'addDir error': err });
+    }
   } else {
     console.log('目录已存在');
   }
@@ -184,7 +174,22 @@ const addFile = (filePath, content = '') => {
  * @param {*} newPath
  */
 const renameDir = (oldPath, newPath) => {
-  fs.renameSync(oldPath, newPath);
+  try {
+    fs.renameSync(oldPath, newPath);
+    console.log('目录重命名成功');
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      try {
+        fs.mkdirSync(path.dirname(newPath), { recursive: true });
+        fs.renameSync(oldPath, newPath);
+        console.log('目录重命名成功');
+      } catch (e) {
+        console.log({ 'renameDir error': e });
+      }
+    } else {
+      console.log({ 'renameDir error': err });
+    }
+  }
 };
 
 /**
@@ -193,7 +198,22 @@ const renameDir = (oldPath, newPath) => {
  * @param {*} newPath
  */
 const renameFile = (oldPath, newPath) => {
-  fs.renameSync(oldPath, newPath);
+  try {
+    fs.renameSync(oldPath, newPath);
+    console.log('文件重命名成功');
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      try {
+        fs.mkdirSync(path.dirname(newPath), { recursive: true });
+        fs.renameSync(oldPath, newPath);
+        console.log('文件重命名成功');
+      } catch (e) {
+        console.log({ 'renameFile error': e });
+      }
+    } else {
+      console.log({ 'renameFile error': err });
+    }
+  }
 };
 
 /**

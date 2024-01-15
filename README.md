@@ -12,8 +12,10 @@ npm i js-xcmd -g
 xcmd -h
 
 const {
+  rmRf,
   isDirExistResult,
   isDirExist,
+  emptyDir,
   copyDir,
   copyFile,
   deleteDir,
@@ -38,6 +40,8 @@ npm link
 npm run bind
 npm unlink
 npm run unbind
+
+npm run i:local
 ```
 
 ## Others

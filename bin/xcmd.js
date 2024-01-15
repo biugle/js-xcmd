@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2023-12-29 14:42:16
+ * @LastEditTime: 2024-01-15 18:02:47
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -137,7 +137,7 @@ program
   .action((dirSrc, dirTarget) => {
     console.log('----------Copying----------');
     console.log({ dirSrc, dirTarget });
-    copyDir(null, dirSrc, dirTarget);
+    copyDir(dirSrc, dirTarget);
     console.log('----------Successful----------');
   });
 
@@ -164,6 +164,8 @@ program
 program
   .option('rm-rf <path>', 'rm rf')
   .command('rm-rf <path>')
+  // .option('rmrf <path>', 'rmrf')
+  // .command('rmrf <path>')
   .action((path) => {
     console.log('----------RimRaf----------');
     console.log({ path });
@@ -244,15 +246,25 @@ program
   });
 
 program
-  .option('update-time', 'update package.json time')
-  .command('update-time')
-  .action(() => {
+  .option('update-time [filePath]', 'update package.json time [filePath]')
+  .command('update-time [filePath]')
+  // .option('time [filePath]', 'update package.json time [filePath]')
+  // .command('time [filePath]')
+  .action((filePath) => {
+    try {
+      console.log(new Date().toLocaleString());
+    } catch (e) {
+      console.log('IOS', e);
+    }
     console.log('----------Updating----------');
-    let pkgVal = JSON.parse(getFileContent('./package.json'));
-    // console.log(pkgVal);
-    pkgVal['time'] = getTimeCode();
-    console.log(pkgVal['time']);
-    setFileContent('./package.json', JSON.stringify(pkgVal, '', 2));
+    const packageFilePath = filePath || './package.json';
+    const packageData = getFileContent(packageFilePath);
+    const packageJson = JSON.parse(packageData);
+
+    packageJson.time = getTimeCode();
+    console.log({ time: packageJson.time });
+    setFileContent(packageFilePath, JSON.stringify(packageJson, '', 2));
+
     console.log('----------Successful----------');
   });
 
@@ -343,6 +355,8 @@ program
 program
   .option('list [global]', 'list [global]')
   .command('list [global]')
+  // .option('ls [global]', 'ls [global]')
+  // .command('ls [global]')
   .action((global) => {
     let cmdStr = '';
     if (global) {

@@ -2,14 +2,16 @@
  * @Author: HxB
  * @Date: 2022-04-28 13:54:21
  * @LastEditors: DoubleAm
- * @LastEditTime: 2022-08-03 18:48:38
+ * @LastEditTime: 2024-01-15 17:53:39
  * @Description: 导出一些方法，或许后面可以用到。
  * @FilePath: \js-xcmd\main.js
  */
 
 const {
+  rmRf,
   isDirExistResult,
   isDirExist,
+  emptyDir,
   copyDir,
   copyFile,
   deleteDir,
@@ -27,8 +29,10 @@ const {
 const { cmd } = require('./utils/cmd');
 
 module.exports = {
+  rmRf,
   isDirExistResult,
   isDirExist,
+  emptyDir,
   copyDir,
   copyFile,
   deleteDir,
