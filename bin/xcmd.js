@@ -393,11 +393,24 @@ program
   .action(() => {
     let cmdStr = 'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli -g';
     console.log({ cmdStr });
-    const result = nodeCmd.runSync(cmdStr);
-    console.log(result.stderr);
-    if (result.err) return console.log(`%c出错啦！${result.data}`, 'color:red;');
-    console.log(result.data);
-    console.log('----------Successful----------');
+
+    const cmdProcess = nodeCmd.get(cmdStr);
+
+    cmdProcess.stdout.on('data', (data) => {
+      console.log(data);
+    });
+
+    cmdProcess.stderr.on('data', (data) => {
+      console.error(data);
+    });
+
+    cmdProcess.on('close', (code) => {
+      if (code === 0) {
+        console.log('----------Successful----------');
+      } else {
+        console.log(`%c出错啦！退出码: ${code}`, 'color:red;');
+      }
+    });
   });
 
 program
