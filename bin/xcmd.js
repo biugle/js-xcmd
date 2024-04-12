@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-01-15 18:02:47
+ * @LastEditTime: 2024-04-12 21:51:36
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -371,6 +371,92 @@ program
       if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
       console.log(data);
       console.log('----------Npm-List-End----------');
+    });
+  });
+
+program
+  .option('lsn', 'lsn')
+  .command('lsn')
+  .action(() => {
+    let cmdStr = 'nvm list available';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful----------');
+    });
+  });
+
+program
+  .option('ig', 'ig')
+  .command('ig')
+  .action(() => {
+    let cmdStr = 'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli -g';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful----------');
+    });
+  });
+
+program
+  .option('dev [src]', 'dev [src]')
+  .command('dev [src]')
+  .action((src) => {
+    let cmdStr = '';
+    if (src) {
+      console.log(`----------${src}-Dev----------`);
+      cmdStr = `pnpm --filter ${src} dev`;
+    } else {
+      console.log('----------Npm-Run-Dev----------');
+      cmdStr = 'npm run dev';
+    }
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful-OKK!----------');
+    });
+  });
+
+program
+  .option('start [src]', 'start [src]')
+  .command('start [src]')
+  .action((src) => {
+    let cmdStr = '';
+    if (src) {
+      console.log(`----------${src}-Start----------`);
+      cmdStr = `pnpm --filter ${src} start`;
+    } else {
+      console.log('----------Npm-Run-Start----------');
+      cmdStr = 'npm run start';
+    }
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful-OKK!----------');
+    });
+  });
+
+program
+  .option('build [src]', 'build [src]')
+  .command('build [src]')
+  .action((src) => {
+    let cmdStr = '';
+    if (src) {
+      console.log(`----------${src}-Build----------`);
+      cmdStr = `pnpm --filter ${src} build`;
+    } else {
+      console.log('----------Npm-Run-Build----------');
+      cmdStr = 'npm run build';
+    }
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful-OKK!----------');
     });
   });
 
