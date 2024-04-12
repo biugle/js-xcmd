@@ -393,12 +393,11 @@ program
   .action(() => {
     let cmdStr = 'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli -g';
     console.log({ cmdStr });
-    nodeCmd.run(cmdStr, (err, data, stderr) => {
-      console.log(stderr);
-      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
-      console.log(data);
-      console.log('----------Successful----------');
-    });
+    const result = nodeCmd.runSync(cmdStr);
+    console.log(result.stderr);
+    if (result.err) return console.log(`%c出错啦！${result.data}`, 'color:red;');
+    console.log(result.data);
+    console.log('----------Successful----------');
   });
 
 program
