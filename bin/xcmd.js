@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-04-12 22:18:51
+ * @LastEditTime: 2024-04-12 22:43:01
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -391,25 +391,14 @@ program
   .option('ig', 'ig')
   .command('ig')
   .action(() => {
-    let cmdStr = 'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli -g';
+    let cmdStr =
+      'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli create-react-app @vue/cli @angular/cli cordova -g';
     console.log({ cmdStr });
-
-    const cmdProcess = nodeCmd.get(cmdStr);
-
-    cmdProcess.stdout.on('data', (data) => {
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      console.log(stderr);
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
       console.log(data);
-    });
-
-    cmdProcess.stderr.on('data', (data) => {
-      console.error(data);
-    });
-
-    cmdProcess.on('close', (code) => {
-      if (code === 0) {
-        console.log('----------Successful----------');
-      } else {
-        console.log(`%c出错啦！退出码: ${code}`, 'color:red;');
-      }
+      console.log('----------Successful----------');
     });
   });
 
