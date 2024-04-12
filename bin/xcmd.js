@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-04-12 21:51:36
+ * @LastEditTime: 2024-04-12 22:18:51
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -394,6 +394,7 @@ program
     let cmdStr = 'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli -g';
     console.log({ cmdStr });
     nodeCmd.run(cmdStr, (err, data, stderr) => {
+      console.log(stderr);
       if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
       console.log(data);
       console.log('----------Successful----------');
