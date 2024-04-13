@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-04-12 22:43:01
+ * @LastEditTime: 2024-04-13 10:47:58
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -388,11 +388,16 @@ program
   });
 
 program
-  .option('ig', 'ig')
-  .command('ig')
-  .action(() => {
-    let cmdStr =
-      'npm i nrm pnpm cnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli create-react-app @vue/cli @angular/cli cordova -g';
+  .option('ig [all]', 'ig [all]')
+  .command('ig [all]')
+  .action((all) => {
+    let cmdStr = '';
+    if (!all) {
+      cmdStr = 'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf -g';
+    } else {
+      cmdStr =
+        'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli create-react-app @vue/cli @angular/cli cordova cnpm -g -force';
+    }
     console.log({ cmdStr });
     nodeCmd.run(cmdStr, (err, data, stderr) => {
       console.log(stderr);
@@ -408,6 +413,7 @@ program
   .action((src) => {
     let cmdStr = '';
     if (src) {
+      src = src.replace(/[\'\"\‘\’\“\”]/g, '');
       console.log(`----------${src}-Dev----------`);
       cmdStr = `pnpm --filter ${src} dev`;
     } else {
@@ -428,6 +434,7 @@ program
   .action((src) => {
     let cmdStr = '';
     if (src) {
+      src = src.replace(/[\'\"\‘\’\“\”]/g, '');
       console.log(`----------${src}-Start----------`);
       cmdStr = `pnpm --filter ${src} start`;
     } else {
@@ -448,6 +455,7 @@ program
   .action((src) => {
     let cmdStr = '';
     if (src) {
+      src = src.replace(/[\'\"\‘\’\“\”]/g, '');
       console.log(`----------${src}-Build----------`);
       cmdStr = `pnpm --filter ${src} build`;
     } else {
