@@ -29,7 +29,11 @@ const {
   getFileExt,
   getFileContent,
   setFileContent,
-  cmd
+  getPath,
+  getFullPath,
+  cmd,
+  node2es6,
+  sortJSON
 } = require('js-xcmd');
 ```
 

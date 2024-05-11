@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-04-13 10:47:58
+ * @LastEditTime: 2024-05-11 18:47:15
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -24,10 +24,12 @@ const {
   renameDir,
   renameFile,
   rmRf,
-  emptyDir
+  emptyDir,
+  getFullPath
 } = require('../utils/files');
-const nodeCmd = require('node-cmd');
 const { cmd } = require('../utils/cmd');
+const { node2es6, sortJSON } = require('../utils/tools');
+const nodeCmd = require('node-cmd');
 
 // http://patorjk.com/software/taag/
 const logo = () => {
@@ -485,6 +487,28 @@ program
         console.log('----------Error----------');
         console.log(err);
       });
+  });
+
+program
+  .option('node2es6 <filePath> <outputPath>', 'node2es6 <filePath> <outputPath>')
+  .command('node2es6 <filePath> <outputPath>')
+  .description('将 CommonJS 文件转换为 ES6 模块')
+  .action((filePath, outputPath) => {
+    filePath = getFullPath(filePath); // 获取当前运行目录
+    const obj = require(filePath);
+    const result = node2es6(obj);
+    setFileContent(outputPath, result);
+  });
+
+program
+  .option('sort-json <jsonPath> [outputPath]', 'sort-json <jsonPath> [outputPath]')
+  .command('sort-json <jsonPath> [outputPath]')
+  .action((jsonPath, outputPath) => {
+    outputPath = outputPath ? outputPath : jsonPath;
+    const jsonString = getFileContent(jsonPath);
+    const obj = JSON.parse(jsonString);
+    const result = sortJSON(obj);
+    setFileContent(outputPath, result);
   });
 
 program.parse(process.argv);

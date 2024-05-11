@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 17:49:14
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-01-15 17:51:49
+ * @LastEditTime: 2024-05-11 18:32:15
  * @Description: 文件处理工具
  * @FilePath: \js-xcmd\utils\files.js
  */
@@ -261,6 +261,22 @@ const setFileContent = (filePath, content) => {
   fs.writeFileSync(filePath, content, 'utf-8');
 };
 
+/**
+ * 获取 path
+ * @param {*} filePath
+ */
+const getPath = (filePath) => {
+  return path.join(__dirname, filePath);
+};
+
+/**
+ * 获取当前目录相对 path 的完整路径
+ * @param {*} filePath
+ */
+const getFullPath = (filePath) => {
+  return path.join(process.cwd(), filePath);
+};
+
 module.exports = {
   rmRf,
   isDirExistResult,
@@ -278,5 +294,7 @@ module.exports = {
   getFileSize,
   getFileExt,
   getFileContent,
-  setFileContent
+  setFileContent,
+  getPath,
+  getFullPath
 };
