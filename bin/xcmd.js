@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-13 17:11:47
+ * @LastEditTime: 2024-05-16 17:26:23
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -15,8 +15,9 @@ const pkg = require('../package.json');
 const {
   copyDir,
   copyFile,
-  getFileContent,
   setFileContent,
+  getFileContent,
+  getJSONFileObj,
   deleteDir,
   deleteFile,
   addDir,
@@ -25,7 +26,9 @@ const {
   renameFile,
   rmRf,
   emptyDir,
-  getFullPath
+  getFullPath,
+  getResolvePath,
+  getAllFilePath
 } = require('../utils/files');
 const { cmd } = require('../utils/cmd');
 const { node2es6, sortJSON } = require('../utils/tools');
@@ -86,7 +89,7 @@ program
   .action((dir) => {
     console.log('----------Clone Template----------');
     console.log(logLogo(logo));
-    download('github:pandaoh/vue-admin', !dir ? 'vue-admin' : dir, function (err) {
+    download('github:biugle/vue-admin', !dir ? 'vue-admin' : dir, function (err) {
       console.log(err ? err : '----------Successful----------');
     });
   });
@@ -276,8 +279,7 @@ program
     }
     console.log('----------Updating----------');
     const packageFilePath = filePath || './package.json';
-    const packageData = getFileContent(packageFilePath);
-    const packageJson = JSON.parse(packageData);
+    const packageJson = getJSONFileObj(packageFilePath);
 
     packageJson.time = getTimeCode();
     console.log({ time: packageJson.time });
@@ -535,10 +537,72 @@ program
   .description('将指定 json 文件排序去重并输出')
   .action((jsonPath, outputPath) => {
     outputPath = outputPath ? outputPath : jsonPath;
-    const jsonString = getFileContent(jsonPath);
-    const obj = JSON.parse(jsonString);
+    const obj = getJSONFileObj(jsonPath);
     const result = sortJSON(obj);
     setFileContent(outputPath, result);
+  });
+
+program
+  .option('check-i18n [dirPath] [depth] [isExited]', 'check-i18n [dirPath] [depth] [isExited]')
+  .command('check-i18n [dirPath] [depth] [isExited]')
+  .description('检查 i18n 目录下的 json 文件 Key 是否有差异')
+  .action((dirPath = './src/locales/', depth = 0, isExited = false) => {
+    console.log(`${dirPath} 目录检查中...`);
+    const i18nDirectory = getResolvePath(dirPath);
+    const files = getAllFilePath(i18nDirectory, depth == 'true' ? true : depth, ['json']);
+    console.log(`${i18nDirectory} 目录检查完成...`, files);
+    if (files.length === 0) {
+      console.error(`${i18nDirectory} 目录下没有 json 文件`);
+      return;
+    }
+
+    const getKeys = (filePath) => {
+      const jsonContent = getJSONFileObj(filePath);
+      return Object.keys(jsonContent);
+    };
+
+    let baseFile = files[0];
+    let baseKeys = getKeys(baseFile);
+
+    for (let i = 1; i < files.length; i++) {
+      const currentFile = files[i];
+      const currentKeys = getKeys(currentFile);
+
+      if (currentKeys.length > baseKeys.length) {
+        baseFile = currentFile;
+        baseKeys = currentKeys;
+      }
+    }
+
+    let isValid = true;
+
+    for (let i = 0; i < files.length; i++) {
+      const currentFile = files[i];
+
+      if (currentFile !== baseFile) {
+        const currentKeys = getKeys(currentFile);
+        const missingKeys = baseKeys.filter((key) => !currentKeys.includes(key));
+
+        if (missingKeys.length > 0) {
+          isValid = false;
+          console.info(`\n\n${currentFile} 相比基准【${baseFile}】缺失 key: ${missingKeys.join(', ')}\n\n`);
+        }
+      }
+    }
+
+    if (isValid) {
+      console.log('所有文件 key 一致，通过校验！');
+
+      files.forEach((jsonPath) => {
+        console.log(`正在排序 ${jsonPath}`);
+        const obj = getJSONFileObj(jsonPath);
+        const result = sortJSON(obj);
+        setFileContent(jsonPath, result);
+      });
+    } else {
+      console.error('校验未通过，存在缺失的 key。');
+      isExited && process.exit(1);
+    }
   });
 
 program.parse(process.argv);

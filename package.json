@@ -1,6 +1,6 @@
 {
   "name": "js-xcmd",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "XCmd library for node.js.",
   "main": "main.js",
   "bin": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pandaoh/js-xcmd.git"
+    "url": "git+https://github.com/biugle/js-xcmd.git"
   },
   "keywords": [
     "cmd",
@@ -26,9 +26,9 @@
   "blog": "http://a.biugle.cn",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/pandaoh/js-xcmd/issues"
+    "url": "https://github.com/biugle/js-xcmd/issues"
   },
-  "homepage": "https://github.com/pandaoh/js-xcmd#readme",
+  "homepage": "https://github.com/biugle/js-xcmd#readme",
   "dependencies": {
     "commander": "^9.2.0",
     "download-git-repo": "^3.0.2",

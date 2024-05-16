@@ -9,8 +9,9 @@ npm i js-xcmd -g
 ## Use
 
 ```bash
-xcmd -h
+xcmd -h # 查看帮助说明
 
+# 代码使用
 const {
   rmRf,
   isDirExistResult,
@@ -27,10 +28,13 @@ const {
   getFileName,
   getFileSize,
   getFileExt,
-  getFileContent,
   setFileContent,
+  getFileContent,
+  getJSONFileObj,
   getPath,
   getFullPath,
+  getResolvePath,
+  getAllFilePath,
   cmd,
   node2es6,
   sortJSON
@@ -50,6 +54,6 @@ npm run i:local
 
 ## Others
 
-* [Issue](https://github.com/pandaoh/js-xcmd/issues)
-* [Pull Request](https://github.com/pandaoh/js-xcmd/pulls)
+* [Issue](https://github.com/biugle/js-xcmd/issues)
+* [Pull Request](https://github.com/biugle/js-xcmd/pulls)
 * [hxbpandaoh@163.com](mailto:hxbpandaoh@163.com)

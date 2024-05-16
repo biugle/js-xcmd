@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 17:49:14
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-11 18:32:15
+ * @LastEditTime: 2024-05-16 16:48:18
  * @Description: 文件处理工具
  * @FilePath: \js-xcmd\utils\files.js
  */
@@ -253,6 +253,21 @@ const getFileContent = (filePath) => {
 };
 
 /**
+ * 获取 JSON 文件内容对象
+ * @param {*} filePath
+ * @returns
+ */
+const getJSONFileObj = (filePath) => {
+  try {
+    const fileContent = getFileContent(filePath);
+    return JSON.parse(fileContent);
+  } catch (e) {
+    console.log({ getJSONFileObjError: e, filePath });
+    return null;
+  }
+};
+
+/**
  * 修改文件内容
  * @param {*} filePath
  * @param {*} content
@@ -277,6 +292,47 @@ const getFullPath = (filePath) => {
   return path.join(process.cwd(), filePath);
 };
 
+/**
+ * 处理绝对路径
+ * @param {*} filePath
+ */
+const getResolvePath = (filePath) => {
+  return path.resolve(filePath);
+};
+
+/**
+ * 获取指定目录下的文件，`depth = true` 查所有。
+ * @param {*} directory
+ * @param {*} depth
+ * @param {*} fileExtensions
+ * @returns
+ */
+function getAllFilePath(directory, depth = 0, fileExtensions = []) {
+  const files = [];
+
+  function traverseDirectory(currentDir, currentDepth) {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+
+    entries.forEach((entry) => {
+      const fullPath = path.join(currentDir, entry.name);
+
+      if (entry.isDirectory()) {
+        if (depth === true || currentDepth < depth) {
+          traverseDirectory(fullPath, currentDepth + 1);
+        }
+      } else {
+        if (fileExtensions.length === 0 || fileExtensions.some((i) => path.extname(fullPath).includes(i))) {
+          files.push(fullPath);
+        }
+      }
+    });
+  }
+
+  traverseDirectory(directory, 0);
+
+  return files;
+}
+
 module.exports = {
   rmRf,
   isDirExistResult,
@@ -295,6 +351,9 @@ module.exports = {
   getFileExt,
   getFileContent,
   setFileContent,
+  getJSONFileObj,
   getPath,
-  getFullPath
+  getFullPath,
+  getResolvePath,
+  getAllFilePath
 };

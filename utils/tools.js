@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2024-05-11 17:59:32
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-11 18:47:05
+ * @LastEditTime: 2024-05-16 17:28:34
  * @Description: 转化 commonjs 为 es6 modules
  * @FilePath: \js-xcmd\utils\tools.js
  */
@@ -50,7 +50,7 @@ const sortJSON = (obj) => {
 
   // 在每个分类中按键的长度进行排序
   for (const group in sortedAndGroupedObject) {
-    sortedAndGroupedObject[group].sort((a, b) => a.length - b.length);
+    sortedAndGroupedObject[group].sort((a, b) => a.localeCompare(b)).sort((a, b) => a.length - b.length);
   }
 
   // 拼接分类后的键数组
