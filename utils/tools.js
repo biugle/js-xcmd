@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2024-05-11 17:59:32
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-16 17:28:34
+ * @LastEditTime: 2024-05-17 13:52:49
  * @Description: 转化 commonjs 为 es6 modules
  * @FilePath: \js-xcmd\utils\tools.js
  */
@@ -70,7 +70,12 @@ const sortJSON = (obj) => {
   return sortedJsonString;
 };
 
+const mergeObj = (...args) => {
+  return Object.assign({}, ...[...args].map((i) => (i ? i : {})));
+};
+
 module.exports = {
   node2es6,
-  sortJSON
+  sortJSON,
+  mergeObj
 };

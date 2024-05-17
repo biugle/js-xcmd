@@ -1,6 +1,6 @@
 {
   "name": "js-xcmd",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "XCmd library for node.js.",
   "main": "main.js",
   "bin": {

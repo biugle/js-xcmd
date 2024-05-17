@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-16 17:26:23
+ * @LastEditTime: 2024-05-17 14:04:56
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -31,7 +31,7 @@ const {
   getAllFilePath
 } = require('../utils/files');
 const { cmd } = require('../utils/cmd');
-const { node2es6, sortJSON } = require('../utils/tools');
+const { node2es6, sortJSON, mergeObj } = require('../utils/tools');
 const nodeCmd = require('node-cmd');
 
 // http://patorjk.com/software/taag/
@@ -603,6 +603,31 @@ program
       console.error('校验未通过，存在缺失的 key。');
       isExited && process.exit(1);
     }
+  });
+
+program
+  .option('merge-json [filePaths...]', 'merge-json [filePaths...]')
+  .command('merge-json [filePaths...]')
+  .description('合并指定 JSON 文件内容，并去重排序。')
+  .action((filePaths) => {
+    if (!filePaths || filePaths.length <= 1) {
+      console.error('请提供需要合并的 JSON 文件路径，至少 2 个！');
+      return;
+    }
+
+    const objArgs = filePaths.map((filePath) => {
+      filePath = getResolvePath(filePath);
+      return getJSONFileObj(filePath);
+    });
+
+    const mergedData = mergeObj(...objArgs);
+    const mergedFilePath = getFullPath('./xcmd-auto-merge.json');
+
+    console.log(`正在排序 ${mergedFilePath}`);
+    const result = sortJSON(mergedData);
+    setFileContent(mergedFilePath, result);
+
+    console.log(`JSON 文件合并完成，并保存为 【${mergedFilePath}】。`);
   });
 
 program.parse(process.argv);
