@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-17 14:04:56
+ * @LastEditTime: 2024-05-24 10:26:54
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -543,10 +543,10 @@ program
   });
 
 program
-  .option('check-i18n [dirPath] [depth] [isExited]', 'check-i18n [dirPath] [depth] [isExited]')
-  .command('check-i18n [dirPath] [depth] [isExited]')
+  .option('check-i18n [dirPath] [depth] [addKeys] [isExited]', 'check-i18n [dirPath] [depth] [addKeys] [isExited]')
+  .command('check-i18n [dirPath] [depth] [addKeys] [isExited]')
   .description('检查 i18n 目录下的 json 文件 Key 是否有差异')
-  .action((dirPath = './src/locales/', depth = 0, isExited = false) => {
+  .action((dirPath = './src/locales/', depth = 0, addKeys = false, isExited = false) => {
     console.log(`${dirPath} 目录检查中...`);
     const i18nDirectory = getResolvePath(dirPath);
     const files = getAllFilePath(i18nDirectory, depth == 'true' ? true : depth, ['json']);
@@ -587,6 +587,15 @@ program
           isValid = false;
           console.info(`\n\n${currentFile} 相比基准【${baseFile}】缺失 key: ${missingKeys.join(', ')}\n\n`);
         }
+
+        if (addKeys && missingKeys.length) {
+          console.log(`正在补充 ${currentFile} 缺失的 key: ${missingKeys.join(', ')}`);
+          const obj = getJSONFileObj(currentFile);
+          missingKeys.forEach((key) => {
+            obj[key] = '';
+          });
+          setFileContent(currentFile, JSON.stringify(obj, null, 2));
+        }
       }
     }
 
@@ -600,7 +609,7 @@ program
         setFileContent(jsonPath, result);
       });
     } else {
-      console.error('校验未通过，存在缺失的 key。');
+      console.info(addKeys ? '校验未通过，已补充缺失的 key，请前往修改。' : '校验未通过，存在缺失的 key。');
       isExited && process.exit(1);
     }
   });
@@ -610,9 +619,23 @@ program
   .command('merge-json [filePaths...]')
   .description('合并指定 JSON 文件内容，并去重排序。')
   .action((filePaths) => {
-    if (!filePaths || filePaths.length <= 1) {
-      console.error('请提供需要合并的 JSON 文件路径，至少 2 个！');
+    if (!filePaths) {
+      console.error('请提供需要合并的 JSON 文件路径，或者文件目录！');
       return;
+    }
+    if (filePaths.length === 1) {
+      if (`${filePaths[0]}`.includes('json')) {
+        console.error('请提供至少 2 个 JSON 文件！');
+        return;
+      }
+      const i18nDirectory = getResolvePath(filePaths[0]);
+      const files = getAllFilePath(i18nDirectory, true, ['json']);
+      console.log(`${i18nDirectory} 目录检查完成...`, files);
+      if (files.length === 0) {
+        console.error(`${i18nDirectory} 目录下没有 json 文件`);
+        return;
+      }
+      filePaths = files;
     }
 
     const objArgs = filePaths.map((filePath) => {
