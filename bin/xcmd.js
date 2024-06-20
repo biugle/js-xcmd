@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-24 10:26:54
+ * @LastEditTime: 2024-06-20 16:49:52
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -422,11 +422,45 @@ program
   .action((all) => {
     let cmdStr = '';
     if (!all) {
-      cmdStr = 'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf -g';
+      cmdStr = 'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf turbo tsx taze knip yalc -g';
     } else {
       cmdStr =
-        'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf protobufjs protobufjs-cli create-react-app @vue/cli @angular/cli cordova cnpm -g -force';
+        'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf turbo tsx taze knip yalc protobufjs protobufjs-cli @changesets/cli create-react-app @vue/cli @angular/cli cordova cnpm -g -force';
     }
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      console.log(stderr);
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful----------');
+    });
+  });
+
+program
+  .option('i-react-tools', 'i-react-tools')
+  .command('i-react-tools')
+  .description('安装 react 开发相关库')
+  .action(() => {
+    // zod react-hook-form @tanstack/react-query
+    // @mui/material @mui/lab @mui/base @mui/system @mui/utils @mui/types
+    // rebass
+    let cmdStr =
+      'npm i ahooks rxjs dayjs @sigi/core@2.12.1 @sigi/di@2.11.3 @sigi/types@2.11.3 @sigi/devtool@2.12.1 @sigi/react@2.12.2 @emotion/styled @emotion/css @emotion/react';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      console.log(stderr);
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Successful----------');
+    });
+  });
+
+program
+  .option('i-vue-tools', 'i-vue-tools')
+  .command('i-vue-tools')
+  .description('安装 vue 开发相关库')
+  .action(() => {
+    let cmdStr = 'npm i ...';
     console.log({ cmdStr });
     nodeCmd.run(cmdStr, (err, data, stderr) => {
       console.log(stderr);
