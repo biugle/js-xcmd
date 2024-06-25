@@ -445,7 +445,7 @@ program
     // @mui/material @mui/lab @mui/base @mui/system @mui/utils @mui/types
     // rebass
     let cmdStr =
-      'npm i ahooks rxjs dayjs @sigi/core@2.12.1 @sigi/di@2.11.3 @sigi/types@2.11.3 @sigi/devtool@2.12.1 @sigi/react@2.12.2 @emotion/styled @emotion/css @emotion/react';
+      'npm i ahooks rxjs dayjs @sigi/core@2.12.1 @sigi/di@2.11.3 @sigi/types@2.11.3 @sigi/devtool@2.12.1 @sigi/react@2.12.2 @sigi/ssr@2.13.0 @abraham/reflection@0.12.0 @emotion/styled @emotion/css @emotion/react react-hook-form';
     console.log({ cmdStr });
     nodeCmd.run(cmdStr, (err, data, stderr) => {
       console.log(stderr);
