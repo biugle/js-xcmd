@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-06-20 16:49:52
+ * @LastEditTime: 2024-06-26 09:43:35
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -31,7 +31,7 @@ const {
   getAllFilePath
 } = require('../utils/files');
 const { cmd } = require('../utils/cmd');
-const { node2es6, sortJSON, mergeObj } = require('../utils/tools');
+const { node2es6, sortJSON, mergeObj, versionUpgrade } = require('../utils/tools');
 const nodeCmd = require('node-cmd');
 
 // http://patorjk.com/software/taag/
@@ -262,6 +262,23 @@ program
     let srcFileContent = getFileContent(fileSrc);
     // setFileContent(fileSrc, srcFileContent.replace(content, contentTarget));
     setFileContent(fileSrc, srcFileContent.replace(new RegExp(content, 'g'), contentTarget));
+    console.log('----------Successful----------');
+  });
+
+program
+  .option('update-v [filePath]', 'update package.json version [filePath]')
+  .command('update-v [filePath]')
+  .description('更新 json 中的 version 字段')
+  .action((filePath) => {
+    console.log('----------Updating----------');
+    const packageFilePath = filePath || './package.json';
+    const packageJson = getJSONFileObj(packageFilePath);
+
+    console.log('old version: ' + packageJson.version);
+    packageJson.version = versionUpgrade(packageJson.version);
+    console.log('new version: ' + packageJson.version);
+    setFileContent(packageFilePath, JSON.stringify(packageJson, '', 2));
+
     console.log('----------Successful----------');
   });
 

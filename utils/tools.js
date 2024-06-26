@@ -2,7 +2,7 @@
  * @Author: HxB
  * @Date: 2024-05-11 17:59:32
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-05-17 13:52:49
+ * @LastEditTime: 2024-06-26 09:42:31
  * @Description: 转化 commonjs 为 es6 modules
  * @FilePath: \js-xcmd\utils\tools.js
  */
@@ -74,8 +74,44 @@ const mergeObj = (...args) => {
   return Object.assign({}, ...[...args].map((i) => (i ? i : {})));
 };
 
+/**
+ * 版本号升级算法
+ * @example
+ * versionUpgrade('0.0.1'); /// '0.0.2'
+ * versionUpgrade('0.0.0.9'); /// '0.0.0.10'
+ * versionUpgrade('0.0.0.9', 9); /// '0.0.1.0'
+ * versionUpgrade('0.0.9.9', 9); /// '0.1.0.0'
+ * @param version 版本号
+ * @param maxVersionCode 最大版本号
+ * @returns
+ */
+const versionUpgrade = (version, maxVersionCode = 99) => {
+  if (maxVersionCode == 0) {
+    maxVersionCode = 99;
+  }
+  let tempVersionArr = version.split('.').map((v) => Number(v));
+  const nan = tempVersionArr.some((v) => isNaN(v));
+  if (nan) {
+    return version;
+  }
+  tempVersionArr = tempVersionArr.reverse();
+  let check = true;
+  tempVersionArr.forEach((v, i) => {
+    if (check) {
+      if (v >= maxVersionCode) {
+        tempVersionArr[i] = 0;
+      } else {
+        check = false;
+        tempVersionArr[i] = tempVersionArr[i] + 1;
+      }
+    }
+  });
+  return tempVersionArr.reverse().join('.');
+};
+
 module.exports = {
   node2es6,
   sortJSON,
-  mergeObj
+  mergeObj,
+  versionUpgrade
 };

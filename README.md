@@ -28,8 +28,8 @@ const {
   getFileName,
   getFileSize,
   getFileExt,
-  setFileContent,
   getFileContent,
+  setFileContent,
   getJSONFileObj,
   getPath,
   getFullPath,
@@ -37,7 +37,9 @@ const {
   getAllFilePath,
   cmd,
   node2es6,
-  sortJSON
+  sortJSON,
+  mergeObj,
+  versionUpgrade
 } = require('js-xcmd');
 ```
 
