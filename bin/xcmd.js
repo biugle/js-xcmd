@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-06-26 09:43:35
+ * @LastEditTime: 2024-07-22 10:57:11
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -462,7 +462,7 @@ program
     // @mui/material @mui/lab @mui/base @mui/system @mui/utils @mui/types
     // rebass
     let cmdStr =
-      'npm i ahooks rxjs dayjs @sigi/core@2.12.1 @sigi/di@2.11.3 @sigi/types@2.11.3 @sigi/devtool@2.12.1 @sigi/react@2.12.2 @sigi/ssr@2.13.0 @abraham/reflection@0.12.0 @emotion/styled @emotion/css @emotion/react react-hook-form';
+      'npm i ahooks rxjs dayjs immer@9.0.21 @sigi/core@2.12.1 @sigi/di@2.11.3 @sigi/types@2.11.3 @sigi/devtool@2.12.1 @sigi/react@2.12.2 @sigi/ssr@2.13.0 @abraham/reflection@0.12.0 @emotion/styled @emotion/css @emotion/react react-hook-form';
     console.log({ cmdStr });
     nodeCmd.run(cmdStr, (err, data, stderr) => {
       console.log(stderr);
