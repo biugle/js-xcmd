@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-07-22 10:57:11
+ * @LastEditTime: 2024-09-23 18:08:19
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -442,7 +442,7 @@ program
       cmdStr = 'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf turbo tsx taze knip yalc -g';
     } else {
       cmdStr =
-        'npm i nrm pnpm js-xcmd nodemon pm2 yarn rimraf turbo tsx taze knip yalc protobufjs protobufjs-cli @changesets/cli create-react-app @vue/cli @angular/cli cordova cnpm -g -force';
+        'npm i increase-memory-limit nrm pnpm js-xcmd nodemon pm2 yarn rimraf turbo tsx taze knip yalc protobufjs protobufjs-cli @changesets/cli create-react-app @vue/cli @angular/cli cordova cnpm -g -force';
     }
     console.log({ cmdStr });
     nodeCmd.run(cmdStr, (err, data, stderr) => {
@@ -702,6 +702,21 @@ program
     setFileContent(mergedFilePath, result);
 
     console.log(`JSON 文件合并完成，并保存为 【${mergedFilePath}】。`);
+  });
+
+program
+  .option('increase-memory-limit', 'increase-memory-limit')
+  .command('increase-memory-limit')
+  .description('解决内存溢出神器')
+  .action(() => {
+    console.log('----------increase-memory-limit-Start----------');
+    const cmdStr = 'npm install -g increase-memory-limit && increase-memory-limit';
+    console.log({ cmdStr });
+    nodeCmd.run(cmdStr, (err, data, stderr) => {
+      if (err) return console.log(`%c出错啦！${data}`, 'color:red;');
+      console.log(data);
+      console.log('----------Npm-Install-IgnoreScripts-End----------');
+    });
   });
 
 program.parse(process.argv);
