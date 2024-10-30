@@ -1,6 +1,6 @@
 {
   "name": "js-xcmd",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "description": "XCmd library for node.js.",
   "main": "main.js",
   "bin": {
@@ -34,7 +34,8 @@
     "download-git-repo": "^3.0.2",
     "fs-extra": "^11.2.0",
     "node-cmd": "^5.0.0",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "xlsx": "^0.18.5"
   },
   "time": "2717021815012024"
 }

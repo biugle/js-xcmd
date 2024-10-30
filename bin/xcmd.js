@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-09-23 18:08:19
+ * @LastEditTime: 2024-10-30 14:31:25
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -31,8 +31,9 @@ const {
   getAllFilePath
 } = require('../utils/files');
 const { cmd } = require('../utils/cmd');
-const { node2es6, sortJSON, mergeObj, versionUpgrade } = require('../utils/tools');
+const { node2es6, sortJSON, mergeObj, versionUpgrade, isValidJson, jsonToExcel } = require('../utils/tools');
 const nodeCmd = require('node-cmd');
+const readline = require('readline');
 
 // http://patorjk.com/software/taag/
 const logo = () => {
@@ -702,6 +703,42 @@ program
     setFileContent(mergedFilePath, result);
 
     console.log(`JSON 文件合并完成，并保存为 【${mergedFilePath}】。`);
+  });
+
+program
+  .option('json2excel <projectCode> [jsonFilePath]', 'json2excel <projectCode> [jsonFilePath]')
+  .command('json2excel <projectCode> [jsonFilePath]')
+  .description('将 JSON 数据转化为 Excel')
+  .action((projectCode, jsonFilePath) => {
+    if (!projectCode) {
+      console.error('请提供 Project Code');
+      return;
+    }
+
+    if (!jsonFilePath) {
+      // 如果未提供JSON文件路径，则提示输入JSON内容
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+
+      rl.question('请输入 JSON 数据: \n', (jsonData) => {
+        rl.close();
+        if (isValidJson(jsonData)) {
+          jsonToExcel(projectCode, JSON.parse(jsonData));
+        } else {
+          console.error('输入的内容不是有效的JSON格式');
+        }
+      });
+    } else {
+      const filePath = getResolvePath(jsonFilePath);
+      const jsonData = getJSONFileObj(filePath);
+      if (jsonData) {
+        jsonToExcel(projectCode, jsonData);
+      } else {
+        console.error('JSON 文件中的内容不是有效的 JSON 格式');
+      }
+    }
   });
 
 program

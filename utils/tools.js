@@ -2,10 +2,11 @@
  * @Author: HxB
  * @Date: 2024-05-11 17:59:32
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-06-26 09:42:31
+ * @LastEditTime: 2024-10-30 14:53:20
  * @Description: 转化 commonjs 为 es6 modules
  * @FilePath: \js-xcmd\utils\tools.js
  */
+const XLSX = require('xlsx');
 
 const node2es6 = (transferObj) => {
   console.log('---转换 Dev 开始---');
@@ -109,9 +110,72 @@ const versionUpgrade = (version, maxVersionCode = 99) => {
   return tempVersionArr.reverse().join('.');
 };
 
+const isValidJson = (json) => {
+  try {
+    JSON.parse(json);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+const jsonToExcel = (projectCode, jsonData) => {
+  const workbook = XLSX.utils.book_new();
+  const sheetName = 'Sheet1';
+  const worksheetData = [];
+
+  for (const key in jsonData) {
+    const rowData = {
+      '项目编码 / Project Code': projectCode,
+      '模块编码 / Module Code': 'ALL',
+      '模块名称 / Module Name': 'ALL',
+      '模块英文名称 / Module Name (En)': 'ALL',
+      '文案编码 / Text Key': `${projectCode}.ALL.${key}`,
+      '国家 / Country': 'ALL',
+      '翻译（中文） / Translation (ZH)': jsonData[key],
+      '翻译（英文） / Translation (EN)': '',
+      '翻译（阿拉伯语） / Translation (AR)': '',
+      '翻译（西班牙语） / Translation (ES)': '',
+      '翻译（葡萄牙语） / Translation (PT)': '',
+      '翻译（土耳其语） / Translation (TR)': '',
+      '翻译（意大利语） / Translation (IT)': ''
+    };
+    worksheetData.push(rowData);
+  }
+  const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+
+  // 设置表头高度
+  // worksheet['!rows'] = [{ hpx: 50 }];
+
+  // 设置列宽
+  worksheet['!cols'] = [
+    { wpx: 100 }, // 项目编码 / Project Code
+    { wpx: 100 }, // 模块编码 / Module Code
+    { wpx: 100 }, // 模块名称 / Module Name
+    { wpx: 100 }, // 模块英文名称 / Module Name (En)
+    { wpx: 300 }, // 文案编码 / Text Key
+    { wpx: 100 }, // 国家 / Country
+    { wpx: 200 }, // 翻译（中文） / Translation (ZH)
+    { wpx: 200 }, // 翻译（英文） / Translation (EN)
+    { wpx: 200 }, // 翻译（阿拉伯语） / Translation (AR)
+    { wpx: 200 }, // 翻译（西班牙语） / Translation (ES)
+    { wpx: 200 }, // 翻译（葡萄牙语） / Translation (PT)
+    { wpx: 200 }, // 翻译（土耳其语） / Translation (TR)
+    { wpx: 200 } // 翻译（意大利语） / Translation (IT)
+  ];
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+  const excelFilePath = `output_${projectCode}_V${Date.now()}.xlsx`;
+  XLSX.writeFile(workbook, excelFilePath);
+  console.log(`Excel 文件已生成: ${excelFilePath}`);
+};
+
 module.exports = {
   node2es6,
   sortJSON,
   mergeObj,
-  versionUpgrade
+  versionUpgrade,
+  isValidJson,
+  jsonToExcel
 };
