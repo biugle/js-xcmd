@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-10-30 14:31:25
+ * @LastEditTime: 2024-10-31 18:20:12
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -32,6 +32,7 @@ const {
 } = require('../utils/files');
 const { cmd } = require('../utils/cmd');
 const { node2es6, sortJSON, mergeObj, versionUpgrade, isValidJson, jsonToExcel } = require('../utils/tools');
+const { extractParamsFromFiles } = require('../utils/ast');
 const nodeCmd = require('node-cmd');
 const readline = require('readline');
 
@@ -730,7 +731,7 @@ program
           console.error('输入的内容不是有效的JSON格式');
         }
       });
-    } else {
+    } else if (`${jsonFilePath}`?.toLowerCase()?.includes('.json')) {
       const filePath = getResolvePath(jsonFilePath);
       const jsonData = getJSONFileObj(filePath);
       if (jsonData) {
@@ -738,6 +739,18 @@ program
       } else {
         console.error('JSON 文件中的内容不是有效的 JSON 格式');
       }
+    } else {
+      const filePath = getResolvePath(jsonFilePath);
+      const listData = extractParamsFromFiles(filePath);
+      if (!listData) {
+        console.error('读取文件失败');
+        return;
+      }
+      const jsonData = {};
+      listData?.forEach((i) => {
+        jsonData[i] = i;
+      });
+      jsonToExcel(projectCode, jsonData);
     }
   });
 

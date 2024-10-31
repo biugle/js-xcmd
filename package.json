@@ -1,6 +1,6 @@
 {
   "name": "js-xcmd",
-  "version": "1.5.11",
+  "version": "1.5.12",
   "description": "XCmd library for node.js.",
   "main": "main.js",
   "bin": {
@@ -30,6 +30,11 @@
   },
   "homepage": "https://github.com/biugle/js-xcmd#readme",
   "dependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/parser": "^7.26.2",
+    "@babel/plugin-proposal-decorators": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/traverse": "^7.25.9",
     "commander": "^9.2.0",
     "download-git-repo": "^3.0.2",
     "fs-extra": "^11.2.0",
