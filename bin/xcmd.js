@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-10-31 18:20:12
+ * @LastEditTime: 2024-11-01 19:10:50
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -33,6 +33,7 @@ const {
 const { cmd } = require('../utils/cmd');
 const { node2es6, sortJSON, mergeObj, versionUpgrade, isValidJson, jsonToExcel } = require('../utils/tools');
 const { extractParamsFromFiles } = require('../utils/ast');
+const { downloadTpl } = require('../utils/tpl');
 const nodeCmd = require('node-cmd');
 const readline = require('readline');
 
@@ -767,6 +768,14 @@ program
       console.log(data);
       console.log('----------Npm-Install-IgnoreScripts-End----------');
     });
+  });
+
+program
+  .option('add-umi-page [dir]', 'add-umi-page [dir]')
+  .command('add-umi-page [dir]')
+  .description('创建简单页面模板')
+  .action((dir) => {
+    downloadTpl('direct:http://cdn.biugle.cn/umi_page.zip', dir || '', ['PageCode', 'Author']);
   });
 
 program.parse(process.argv);
