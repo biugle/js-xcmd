@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-11-01 19:10:50
+ * @LastEditTime: 2024-11-03 16:44:49
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -775,7 +775,7 @@ program
   .command('add-umi-page [dir]')
   .description('创建简单页面模板')
   .action((dir) => {
-    downloadTpl('direct:http://cdn.biugle.cn/umi_page.zip', dir || '', ['PageCode', 'Author']);
+    downloadTpl('http://cdn.biugle.cn/umi_page.zip', dir || '', ['PageCode', 'Author']);
   });
 
 program.parse(process.argv);

@@ -1,43 +1,76 @@
-const download = require('download-git-repo');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
-const glob = require('glob');
 const readline = require('readline');
+const axios = require('axios');
+const unzipper = require('unzipper');
+const { renderTemplate } = require('./template');
 
 /**
- * 下载模板仓库并替换其中的占位符
- * @param {string} repo - Git 仓库地址
- * @param {string} dest - 下载目录
- * @param {object} replacements - 用户输入的替换内容
+ * 下载文件
+ * @param {string} url - 文件的 URL
+ * @param {string} dest - 下载后保存的路径
  */
-function downloadAndReplace(repo, dest, replacements) {
-  download(repo, dest, (err) => {
-    if (err) return console.error('模板下载失败:', err);
-    console.log(`模板已下载到 ${dest}`);
+async function downloadFile(url, dest) {
+  const response = await axios.get(url, { responseType: 'stream' });
+  if (response.status !== 200) {
+    throw new Error(`下载失败，状态码: ${response.status}`);
+  }
 
-    // 获取下载目录中的所有文件路径并替换其中的占位符
-    const files = glob.sync(`${dest}/**/*`, { nodir: true });
-    files.forEach((file) => applyReplacements(file, replacements));
+  const writer = fs.createWriteStream(dest); // 使用 fs 创建写入流
+  response.data.pipe(writer);
 
-    console.log('模板替换已完成');
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
   });
 }
 
 /**
- * 直接使用正则表达式替换文件中的占位符 [[[ ]]]
+ * 解压 ZIP 文件
+ * @param {string} zipPath - ZIP 文件路径
+ * @param {string} extractPath - 解压目录
+ */
+async function unzipFile(zipPath, extractPath) {
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(zipPath)
+      .pipe(unzipper.Extract({ path: extractPath }))
+      .on('close', resolve)
+      .on('error', reject);
+  });
+}
+
+/**
+ * 替换文件中的占位符
  * @param {string} filePath - 文件路径
  * @param {object} replacements - 要替换的值
  */
 function applyReplacements(filePath, replacements) {
-  let content = fs.readFileSync(filePath, 'utf8');
+  try {
+    let content = fs.readFileSync(filePath, 'utf8'); // 以 utf8 编码读取文件
+    const newContent = renderTemplate(content, replacements); // 使用替换值渲染新内容
+    fs.writeFileSync(filePath, newContent, 'utf8'); // 写入新内容
+    console.log(`文件 ${filePath} 替换成功`);
+  } catch (error) {
+    console.error(`处理文件 ${filePath} 时出错:`, error);
+  }
+}
 
-  // 遍历 replacements 对象，将 [[[key]]] 替换为对应的值
-  Object.keys(replacements).forEach((key) => {
-    const regex = new RegExp(`\\[\\[\\[${key}\\]\\]\\]`, 'g');
-    content = content.replace(regex, replacements[key]);
-  });
-
-  fs.writeFileSync(filePath, content, 'utf8');
+/**
+ * 递归遍历目录，处理所有文件
+ * @param {string} dirPath - 目录路径
+ * @param {object} replacements - 要替换的值
+ */
+async function traverseDirectory(dirPath, replacements) {
+  const files = await fsPromises.readdir(dirPath); // 使用 Promise API 读取目录
+  for (const file of files) {
+    const filePath = path.join(dirPath, file);
+    if ((await fsPromises.stat(filePath)).isDirectory()) {
+      await traverseDirectory(filePath, replacements); // 递归调用
+    } else {
+      applyReplacements(filePath, replacements); // 处理文件
+    }
+  }
 }
 
 /**
@@ -45,11 +78,6 @@ function applyReplacements(filePath, replacements) {
  * @param {Array<string>} questions - 要收集的键名数组
  */
 function promptUserInputs(questions) {
-  if (!Array.isArray(questions) || questions.length === 0) {
-    console.error('请提供一个有效的占位符名称数组');
-    return Promise.resolve({});
-  }
-
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -78,26 +106,45 @@ function promptUserInputs(questions) {
 }
 
 /**
- * 主函数，用于运行模板下载和替换
- * @param {string} gitRepo - Git 仓库地址
+ * 主函数，用于下载和替换模板
+ * @param {string} zipUrl - ZIP 文件 URL
  * @param {string} downloadPath - 下载目录路径
  * @param {Array<string>} options - 要收集的替换项
  */
-async function downloadTpl(gitRepo, downloadPath, options) {
-  if (typeof gitRepo !== 'string' || typeof downloadPath !== 'string') {
-    console.error('请提供有效的 Git 仓库地址和下载路径');
-    return;
-  }
+async function downloadTpl(zipUrl, downloadPath, options) {
+  let zipFilePath;
 
-  const answers = await promptUserInputs(options);
-  if (!answers.PageCode) {
-    console.error('请提供 PageCode');
-    return;
+  try {
+    const answers = await promptUserInputs(options);
+    if (!answers.PageCode) {
+      console.error('请提供 PageCode');
+      return;
+    }
+
+    downloadPath = downloadPath || `./${answers.PageCode}`;
+    const dest = path.resolve(downloadPath);
+    zipFilePath = path.join(dest, `template-${Date.now()}.zip`);
+
+    await fsPromises.mkdir(dest, { recursive: true }); // 使用 Promise API 创建目录
+
+    await downloadFile(zipUrl, zipFilePath);
+    console.log(`模板已下载到 ${zipFilePath}`);
+
+    await unzipFile(zipFilePath, dest);
+    console.log('模板解压完成');
+
+    await traverseDirectory(dest, answers); // 递归遍历目录
+    console.log('模板替换已完成');
+  } catch (error) {
+    console.error('操作失败:', error);
+  } finally {
+    if (zipFilePath && (await fsPromises.stat(zipFilePath).catch(() => false))) {
+      await fsPromises.unlink(zipFilePath); // 使用 Promise API 清理 ZIP 文件
+    }
   }
-  downloadPath = downloadPath || `./${answers.PageCode}`;
-  const dest = path.resolve(downloadPath);
-  console.log({ answers, downloadPath });
-  downloadAndReplace(gitRepo, dest, answers);
 }
 
 module.exports = { downloadTpl };
+
+// 调用示例
+// downloadTpl('http://cdn.biugle.cn/umi_page.zip', '', ['PageCode', 'Author']);
