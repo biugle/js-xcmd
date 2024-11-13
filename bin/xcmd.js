@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-11-03 16:44:49
+ * @LastEditTime: 2024-11-13 10:58:05
  * @Description: 命令处理文件
  * @FilePath: \js-xcmd\bin\xcmd.js
  */
@@ -34,6 +34,7 @@ const { cmd } = require('../utils/cmd');
 const { node2es6, sortJSON, mergeObj, versionUpgrade, isValidJson, jsonToExcel } = require('../utils/tools');
 const { extractParamsFromFiles } = require('../utils/ast');
 const { downloadTpl } = require('../utils/tpl');
+const { FILTER_KEYS } = require('../utils/data');
 const nodeCmd = require('node-cmd');
 const readline = require('readline');
 
@@ -708,14 +709,23 @@ program
   });
 
 program
-  .option('json2excel <projectCode> [jsonFilePath]', 'json2excel <projectCode> [jsonFilePath]')
-  .command('json2excel <projectCode> [jsonFilePath]')
+  .option('json2excel <projectCode> [jsonFilePath] [notFilter]', 'json2excel <projectCode> [jsonFilePath] [notFilter]')
+  .command('json2excel <projectCode> [jsonFilePath] [notFilter]')
   .description('将 JSON 数据转化为 Excel')
-  .action((projectCode, jsonFilePath) => {
+  .action((projectCode, jsonFilePath, notFilter) => {
+    notFilter = `${notFilter}` === 'true';
     if (!projectCode) {
       console.error('请提供 Project Code');
       return;
     }
+
+    const _filterJsonData = (data) => {
+      if (notFilter) return data;
+      FILTER_KEYS.forEach((key) => {
+        delete data[key];
+      });
+      return data;
+    };
 
     if (!jsonFilePath) {
       // 如果未提供JSON文件路径，则提示输入JSON内容
@@ -727,7 +737,7 @@ program
       rl.question('请输入 JSON 数据: \n', (jsonData) => {
         rl.close();
         if (isValidJson(jsonData)) {
-          jsonToExcel(projectCode, JSON.parse(jsonData));
+          jsonToExcel(projectCode, _filterJsonData(JSON.parse(jsonData)));
         } else {
           console.error('输入的内容不是有效的JSON格式');
         }
@@ -736,7 +746,7 @@ program
       const filePath = getResolvePath(jsonFilePath);
       const jsonData = getJSONFileObj(filePath);
       if (jsonData) {
-        jsonToExcel(projectCode, jsonData);
+        jsonToExcel(projectCode, _filterJsonData(jsonData));
       } else {
         console.error('JSON 文件中的内容不是有效的 JSON 格式');
       }
@@ -751,7 +761,7 @@ program
       listData?.forEach((i) => {
         jsonData[i] = i;
       });
-      jsonToExcel(projectCode, jsonData);
+      jsonToExcel(projectCode, _filterJsonData(jsonData));
     }
   });
 
