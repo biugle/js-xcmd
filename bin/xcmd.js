@@ -4,9 +4,9 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2024-11-13 10:58:05
+ * @LastEditTime: 2025-05-09 14:09:58
  * @Description: 命令处理文件
- * @FilePath: \js-xcmd\bin\xcmd.js
+ * @FilePath: /js-xcmd/bin/xcmd.js
  */
 
 const program = require('commander');
@@ -32,11 +32,13 @@ const {
 } = require('../utils/files');
 const { cmd } = require('../utils/cmd');
 const { node2es6, sortJSON, mergeObj, versionUpgrade, isValidJson, jsonToExcel } = require('../utils/tools');
-const { extractParamsFromFiles } = require('../utils/ast');
+const { extractParamsFromFiles, parseGitFile, filterGitFiles } = require('../utils/ast');
 const { downloadTpl } = require('../utils/tpl');
 const { FILTER_KEYS } = require('../utils/data');
 const nodeCmd = require('node-cmd');
 const readline = require('readline');
+const util = require('util');
+const { exec } = require('child_process');
 
 // http://patorjk.com/software/taag/
 const logo = () => {
@@ -72,7 +74,7 @@ const getTimeCode = () => {
     .padStart(2, '0')}${String(dateObj.getMonth() + 1).padStart(2, '0')}${dateObj.getFullYear()}`;
 };
 
-program.version(pkg.version, '-v, --version');
+program.version(pkg.version, '-v, --version', 'output the version number');
 
 program
   .option('create-react-view [dir]', 'create react-view cli')
@@ -786,6 +788,63 @@ program
   .description('创建简单页面模板')
   .action((dir) => {
     downloadTpl('http://cdn.biugle.cn/umi_page.zip', dir || '', ['PageCode', 'Author']);
+  });
+
+program
+  .command('git2excel <projectCode> [notFilter]')
+  .description('从 Git 暂存区的 JavaScript/TypeScript 文件中提取 t、$t 或 .t、.$t 方法的参数并转换为 Excel')
+  .action(async (projectCode, notFilter) => {
+    notFilter = `${notFilter}` === 'true';
+    if (!projectCode) {
+      console.error('请提供 Project Code');
+      return;
+    }
+
+    const dir = process.cwd();
+    console.log(`正在扫描Git暂存区: ${dir}`);
+
+    // 获取Git暂存区改动
+    const execPromise = util.promisify(exec);
+    let files;
+    try {
+      const { stdout } = await execPromise('git diff --name-only --cached', { cwd: dir });
+      files = await filterGitFiles(stdout, dir);
+    } catch (err) {
+      console.error(`无法获取Git暂存区改动: ${err.message}`);
+      return;
+    }
+
+    if (files.length === 0) {
+      console.log('暂存区没有JavaScript/TypeScript文件改动。');
+      return;
+    }
+
+    // 提取所有文件的t/$t方法参数
+    const jsonData = {};
+    for (const file of files) {
+      const params = await parseGitFile(file.path, file.changedLines);
+      console.log(`解析结果 for ${file.path}:`, params); // 调试输出
+      params.forEach((param) => {
+        jsonData[param] = param; // 将提取的字符串参数添加到 jsonData 中
+      });
+    }
+
+    if (Object.keys(jsonData).length === 0) {
+      console.log('未找到任何 t、$t 或 .t、.$t 方法调用。');
+      return;
+    }
+
+    const _filterJsonData = (data) => {
+      if (notFilter) return data;
+      FILTER_KEYS.forEach((key) => {
+        delete data[key];
+      });
+      return data;
+    };
+
+    console.log({ jsonData });
+    // 使用现有方法过滤和转换
+    jsonToExcel(projectCode, _filterJsonData(jsonData));
   });
 
 program.parse(process.argv);

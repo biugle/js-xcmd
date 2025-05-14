@@ -1,6 +1,6 @@
 {
   "name": "js-xcmd",
-  "version": "1.5.16",
+  "version": "1.5.18",
   "description": "XCmd library for node.js.",
   "main": "main.js",
   "bin": {
@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "bind": "npm link",
     "unbind": "npm unlink",
-    "i:local": " npm i -g js-xcmd ../js-xcmd"
+    "i:local": "npm i -g js-xcmd ../js-xcmd"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/traverse": "^7.25.9",
     "axios": "^1.7.7",
-    "commander": "^9.2.0",
+    "commander": "9.2.0",
     "download-git-repo": "^3.0.2",
     "fs-extra": "^11.2.0",
     "node-cmd": "^5.0.0",
