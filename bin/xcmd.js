@@ -4,7 +4,7 @@
  * @Author: HxB
  * @Date: 2022-04-25 16:27:06
  * @LastEditors: DoubleAm
- * @LastEditTime: 2025-05-09 14:09:58
+ * @LastEditTime: 2025-12-26 18:21:45
  * @Description: 命令处理文件
  * @FilePath: /js-xcmd/bin/xcmd.js
  */
@@ -788,6 +788,19 @@ program
   .description('创建简单页面模板')
   .action((dir) => {
     downloadTpl('http://cdn.biugle.cn/umi_page.zip', dir || '', ['PageCode', 'Author']);
+  });
+
+program
+  .option('add-tpl <name> [dir]', 'add-tpl <name> [dir]')
+  .command('add-tpl <name> [dir]')
+  .description('创建简单ds页面模板-内部')
+  .action((name, dir) => {
+    downloadTpl(
+      'https://git.imile.com/hank.he/ds-web-tpl/-/archive/main/ds-web-tpl-main.zip',
+      dir || '',
+      ['PageCode', 'Author'],
+      `ds-web-tpl-main/${name}`
+    );
   });
 
 program

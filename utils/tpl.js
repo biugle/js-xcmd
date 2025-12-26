@@ -30,14 +30,95 @@ async function downloadFile(url, dest) {
  * 解压 ZIP 文件
  * @param {string} zipPath - ZIP 文件路径
  * @param {string} extractPath - 解压目录
+ * @param {string} name - 只解压 zip 包中包含的指定目录
+ * @param {boolean} preserveStructure - 是否保留原目录结构
+ *
+ * 示例用法:
+ * // 解压整个ZIP文件
+ * await unzipFile('path/to/file.zip', 'extract/path');
+ *
+ * // 只解压名为 'src' 的目录
+ * await unzipFile('path/to/file.zip', 'extract/path', 'xxx/base_page');
+ *
+ * // 解压特定子目录 (解压后会保留子目录结构)
+ * await unzipFile('path/to/file.zip', 'extract/path', 'xxx/base_page', true);
  */
-async function unzipFile(zipPath, extractPath) {
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(zipPath)
-      .pipe(unzipper.Extract({ path: extractPath }))
-      .on('close', resolve)
-      .on('error', reject);
-  });
+async function unzipFile(zipPath, extractPath, name = '', preserveStructure = false) {
+  console.log('开始解压模板...', { zipPath, name, extractPath, preserveStructure });
+  if (name && typeof name === 'string') {
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(zipPath)
+        .pipe(unzipper.Parse())
+        .on('entry', function (entry) {
+          let fileName = entry.path.replace(/\\/g, '/');
+          const type = entry.type;
+          const normalizedName = name.replace(/\\/g, '/');
+          const normalizedDir = normalizedName.endsWith('/') ? normalizedName : normalizedName + '/';
+          const normalizedPath = fileName.startsWith('/') ? fileName.substring(1) : fileName;
+          const normalizedNamePath = normalizedName.startsWith('/') ? normalizedName.substring(1) : normalizedName;
+          // 判断是否需要解压
+          const shouldExtract =
+            normalizedPath.startsWith(normalizedNamePath) || normalizedPath.startsWith(normalizedDir);
+
+          if (shouldExtract) {
+            // 处理路径：保留结构或扁平化
+            let relativePath;
+            if (normalizedPath.startsWith(normalizedNamePath)) {
+              if (preserveStructure) {
+                // 保留结构：保留 name 之后的路径
+                relativePath = normalizedPath.substring(normalizedNamePath.length);
+                relativePath = relativePath.replace(/^\/+/, '');
+                relativePath = path.join(normalizedNamePath, relativePath);
+              } else {
+                // 扁平化：只保留 name 之后的路径
+                relativePath = normalizedPath.substring(normalizedNamePath.length);
+                relativePath = relativePath.replace(/^\/+/, '');
+              }
+            } else {
+              relativePath = fileName;
+            }
+            const entryPath = path.join(extractPath, relativePath);
+            if (type === 'Directory') {
+              try {
+                if (relativePath) {
+                  fs.mkdirSync(entryPath, { recursive: true });
+                }
+                entry.autodrain();
+              } catch (err) {
+                console.error(`创建目录失败 ${entryPath}:`, err.message);
+                reject(err);
+              }
+            } else {
+              const dir = path.dirname(entryPath);
+              try {
+                if (dir !== extractPath) {
+                  fs.mkdirSync(dir, { recursive: true });
+                }
+                entry.pipe(fs.createWriteStream(entryPath));
+              } catch (err) {
+                console.error(`创建目录失败 ${dir}:`, err.message);
+                reject(err);
+              }
+            }
+          } else {
+            entry.autodrain();
+          }
+        })
+        .on('close', resolve)
+        .on('error', (err) => {
+          console.error('解压过程中发生错误:', err.message);
+          reject(err);
+        });
+    });
+  } else {
+    // 解压整个 zip
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(zipPath)
+        .pipe(unzipper.Extract({ path: extractPath }))
+        .on('close', resolve)
+        .on('error', reject);
+    });
+  }
 }
 
 /**
@@ -110,8 +191,9 @@ function promptUserInputs(questions) {
  * @param {string} zipUrl - ZIP 文件 URL
  * @param {string} downloadPath - 下载目录路径
  * @param {Array<string>} options - 要收集的替换项
+ * @param {string} name - 模板名称
  */
-async function downloadTpl(zipUrl, downloadPath, options) {
+async function downloadTpl(zipUrl, downloadPath, options, name) {
   let zipFilePath;
 
   try {
@@ -122,7 +204,9 @@ async function downloadTpl(zipUrl, downloadPath, options) {
     }
 
     downloadPath = downloadPath || `./${answers.PageCode}`;
-    const dest = path.resolve(downloadPath);
+    const dest = path.resolve(
+      downloadPath?.includes(answers.PageCode) ? downloadPath : path.join(downloadPath, answers.PageCode)
+    );
     zipFilePath = path.join(dest, `template-${Date.now()}.zip`);
 
     await fsPromises.mkdir(dest, { recursive: true }); // 使用 Promise API 创建目录
@@ -130,7 +214,7 @@ async function downloadTpl(zipUrl, downloadPath, options) {
     await downloadFile(zipUrl, zipFilePath);
     console.log(`模板已下载到 ${zipFilePath}`);
 
-    await unzipFile(zipFilePath, dest);
+    await unzipFile(zipFilePath, dest, name);
     console.log('模板解压完成');
 
     await traverseDirectory(dest, answers); // 递归遍历目录
@@ -144,7 +228,7 @@ async function downloadTpl(zipUrl, downloadPath, options) {
   }
 }
 
-module.exports = { downloadTpl };
+module.exports = { downloadTpl, unzipFile };
 
 // 调用示例
 // downloadTpl('http://cdn.biugle.cn/umi_page.zip', '', ['PageCode', 'Author']);
